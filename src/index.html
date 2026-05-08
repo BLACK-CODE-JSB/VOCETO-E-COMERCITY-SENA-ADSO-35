@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>CommerCity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --orange: #F5A623;
+      --orange-deep: #E8890A;
+      --blue: #2563EB;
+      --blue-light: #3B82F6;
+      --bg: #f0f0f0;
+      --white: #ffffff;
+      --text: #111827;
+      --text-muted: #6B7280;
+      --text-dim: #9CA3AF;
+      --border: #E5E7EB;
+      --border-focus: #3B82F6;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --font: 'Sora', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased
+    }
+
+
+    #titlebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 38px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      user-select: none;
+      -webkit-app-region: drag
+    }
+
+    #titlebar .app-title {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue);
+      letter-spacing: 0.05em
+    }
+
+    #titlebar .win-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+      align-items: center
+    }
+
+    #titlebar .win-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(0, 0, 0, 0.15);
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .2s ease
+    }
+
+    #titlebar .win-btn::after {
+      content: '';
+      font-size: 7px;
+      font-weight: 700;
+      color: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity .1s ease;
+      position: absolute
+    }
+
+    #titlebar .win-controls:hover .win-btn::after {
+      opacity: 1
+    }
+
+    #titlebar .btn-close {
+      background: #ff5f57
+    }
+
+    #titlebar .btn-close::after {
+      content: '✕'
+    }
+
+    #titlebar .btn-min {
+      background: #febc2e
+    }
+
+    #titlebar .btn-min::after {
+      content: '─'
+    }
+
+    #titlebar .btn-max {
+      background: #28c840
+    }
+
+    #titlebar .btn-max::after {
+      content: '✚';
+      font-size: 6px
+    }
+
+    #titlebar .win-btn:active {
+      filter: brightness(0.8)
+    }
+
+
+    #app {
+      position: fixed;
+      top: 38px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      -webkit-app-region: no-drag
+    }
+
+    .page {
+      position: absolute;
+      inset: 0;
+      display: none;
+      opacity: 0;
+      transition: opacity .3s ease;
+      overflow-y: auto;
+      background: var(--bg)
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, .15);
+      border-radius: 2px
+    }
+
+    .btn-grad {
+      background: linear-gradient(90deg, #3b82f6 0%, #f59e0b 100%);
+      color: #fff;
+      font-family: var(--font);
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 15px 24px;
+      font-size: 15px;
+      width: 100%;
+      transition: all .2s;
+      box-shadow: 0 4px 20px rgba(37, 99, 235, .25)
+    }
+
+    .btn-grad:hover {
+      opacity: .92;
+      transform: translateY(-1px)
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: #0f172a;
+      border: 1.5px solid #0f172a;
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 14px 24px;
+      font-size: 15px;
+      width: 100%;
+      font-family: var(--font-body);
+      font-weight: 600;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px
+    }
+
+    .btn-outline:hover {
+      border-color: var(--blue);
+      color: var(--blue)
+    }
+
+    .btn-blue-outline {
+      background: #fff;
+      color: var(--blue);
+      border: 1.5px solid var(--blue);
+      border-radius: 50px;
+      cursor: pointer;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      transition: all .2s
+    }
+
+    .btn-blue-outline:hover {
+      background: var(--blue);
+      color: #fff
+    }
+
+    .inp-wrap {
+      position: relative;
+      margin-bottom: 14px;
+      -webkit-app-region: no-drag
+    }
+
+    .inp-wrap .ico {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 16px;
+      opacity: 0.6;
+      pointer-events: none
+    }
+
+    .inp-wrap .ico-right {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 16px;
+      background: none;
+      border: none;
+      z-index: 10;
+      -webkit-app-region: no-drag
+    }
+
+    .inp-wrap input {
+      width: 100%;
+      padding: 14px 14px 14px 42px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: all .2s;
+      position: relative;
+      z-index: 5;
+      -webkit-app-region: no-drag
+    }
+
+    .inp-wrap input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .1)
+    }
+
+    .inp-wrap input::placeholder {
+      color: var(--text-dim)
+    }
+
+    .inp-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px
+    }
+
+    .link-blue {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s
+    }
+
+    .link-blue:hover {
+      opacity: .75
+    }
+
+    .link-orange {
+      color: var(--orange);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s
+    }
+
+    .link-orange:hover {
+      opacity: .75
+    }
+
+    .login-layout {
+      display: flex;
+      min-height: 100%;
+      width: 100%
+    }
+
+    .login-left {
+      flex: 1;
+      background: #0d1117;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 64px;
+      text-align: center
+    }
+
+    .login-left img.bg-hero {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .85
+    }
+
+    .login-left .left-content {
+      position: relative;
+      z-index: 2
+    }
+
+    .login-left .logo-img {
+      width: 420px;
+      margin-bottom: 0
+    }
+
+    .login-left .tagline {
+      font-family: var(--font);
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      margin-top: -60px
+    }
+
+    .login-left .tagline span.blue {
+      color: var(--blue-light)
+    }
+
+    .login-left .tagline span.orange {
+      color: var(--orange)
+    }
+
+    .login-right {
+      width: 520px;
+      min-width: 450px;
+      background: #f4f5f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      border-left: 1px solid var(--border)
+    }
+
+    .login-card {
+      background: #fff;
+      padding: 48px 40px;
+      border-radius: 28px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.8)
+    }
+
+    .auth-card-title {
+      font-family: var(--font);
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 28px;
+      line-height: 1.3
+    }
+
+    .divider-line {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0
+    }
+
+    .auth-center-page {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      background: var(--bg)
+    }
+
+    .auth-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 4px 40px rgba(0, 0, 0, .07)
+    }
+
+    .auth-card-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 28px;
+      line-height: 1.6
+    }
+
+    .auth-footer {
+      font-size: 12px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 32px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px
+    }
+
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      height: 58px;
+      gap: 32px
+    }
+
+    .navbar .nav-logo {
+      font-family: var(--font);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue);
+      flex-shrink: 0;
+      cursor: pointer
+    }
+
+    .navbar .nav-logo span {
+      color: var(--orange)
+    }
+
+    .navbar .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex: 1
+    }
+
+    .navbar .nav-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color .2s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .navbar .nav-link:hover,
+    .navbar .nav-link.active {
+      color: var(--blue)
+    }
+
+    .navbar .nav-link.active {
+      font-weight: 700;
+      border-bottom: 2px solid var(--blue);
+      padding-bottom: 2px
+    }
+
+    .navbar .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-left: auto
+    }
+
+    .navbar .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 16px;
+      min-width: 220px
+    }
+
+    .navbar .search-wrap input {
+      background: none;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--text);
+      width: 100%;
+      font-family: var(--font-body)
+    }
+
+    .navbar .search-wrap input::placeholder {
+      color: var(--text-dim)
+    }
+
+    .nav-icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: background .2s
+    }
+
+    .nav-icon-btn:hover {
+      background: var(--bg)
+    }
+
+    .home-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 48px
+    }
+
+    .hero-banner {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      margin: 24px 0 36px;
+      min-height: 300px
+    }
+
+    .hero-banner img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+      display: block
+    }
+
+    .hero-text {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 32px 40px;
+      background: linear-gradient(to top, rgba(0, 0, 0, .75) 0%, transparent 100%)
+    }
+
+    .hero-text h2 {
+      font-family: var(--font);
+      font-size: 38px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 10px
+    }
+
+    .hero-text p {
+      color: rgba(255, 255, 255, .8);
+      font-size: 14px
+    }
+
+    .section-title {
+      font-family: var(--font);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 20px
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px
+    }
+
+    .prod-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all .25s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .06)
+    }
+
+    .prod-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .12)
+    }
+
+    .prod-card .img-wrap {
+      position: relative;
+      background: #f8f8f8
+    }
+
+    .prod-card .img-wrap img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block
+    }
+
+    .prod-card .discount-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .prod-card .fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      border: none
+    }
+
+    .prod-card .prod-info {
+      padding: 14px
+    }
+
+    .prod-card .prod-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px
+    }
+
+    .prod-card .price-old {
+      font-size: 12px;
+      color: #60a5fa;
+      text-decoration: line-through
+    }
+
+    .prod-card .price-new {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--orange)
+    }
+
+    .load-more {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px
+    }
+
+    .load-more span {
+      width: 32px;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      display: block
+    }
+
+
+    .profile-page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 24px 0 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0
+    }
+
+    .avatar-wrap {
+      position: relative;
+      flex-shrink: 0
+    }
+
+    .avatar-wrap img {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #fff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, .12)
+    }
+
+    .avatar-cam {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .2);
+      cursor: pointer;
+      font-size: 14px
+    }
+
+    .profile-info {
+      flex: 1
+    }
+
+    .profile-username {
+      font-family: var(--font);
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px
+    }
+
+    .profile-stars {
+      color: var(--orange);
+      font-size: 16px;
+      margin-bottom: 10px
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 28px;
+      margin-bottom: 12px
+    }
+
+    .stat-item .stat-val {
+      font-family: var(--font);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text)
+    }
+
+    .stat-item .stat-lbl {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600
+    }
+
+    .profile-bio {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 480px
+    }
+
+    .profile-actions {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px
+    }
+
+    .profile-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px
+    }
+
+    .tab-btn {
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue)
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text)
+    }
+
+
+    .profile-rating {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px
+    }
+
+    .profile-rating span {
+      color: var(--orange);
+      font-size: 18px
+    }
+
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .badge-blue {
+      background: rgba(37, 99, 235, .1);
+      color: var(--blue)
+    }
+
+    .badge-orange {
+      background: rgba(245, 166, 35, .15);
+      color: var(--orange-deep)
+    }
+
+    .badge-green {
+      background: rgba(34, 197, 94, .12);
+      color: #16a34a
+    }
+
+    /* Fix Electron drag region - force all interactive elements to be clickable */
+    input, textarea, select, button, a, label {
+      -webkit-app-region: no-drag !important;
+    }
+
+    .err-msg {
+      display: none;
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: -6px;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="titlebar">
+    <div class="app-title">⬡ CommerCity</div>
+    <div class="win-controls">
+      <button class="win-btn btn-min" onclick="ipcRenderer.send('minimize-window')"></button>
+      <button class="win-btn btn-max" onclick="ipcRenderer.send('maximize-window')"></button>
+      <button class="win-btn btn-close" onclick="ipcRenderer.send('close-window')"></button>
+    </div>
+  </div>
+
+  <div id="app">
+
+
+    <div class="page active" id="page-login">
+      <div class="login-layout">
+
+        <div class="login-left">
+          <img class="bg-hero" src="./assets/fondo-login.png" alt="Fondo Login">
+          <div class="left-content">
+            <img class="logo-img" src="./assets/logo.png" alt="Logo CommerCity">
+            <div class="tagline">Tu tienda. Tu ciudad.<br><span class="blue">Tu éxito,</span> <span
+                class="orange">comienza aquí.</span></div>
+          </div>
+        </div>
+
+        <div class="login-right">
+          <div class="login-card">
+            <h2 class="auth-card-title">Iniciar sesión en<br>CommerCity</h2>
+            <div class="inp-wrap">
+              <span class="ico">👤</span>
+              <input type="text" placeholder="Usuario" id="user-login" oninput="hideErr('login-error')" />
+            </div>
+            <div class="inp-wrap">
+              <span class="ico">🔒</span>
+              <input type="password" placeholder="Contraseña" id="pw-login" oninput="hideErr('login-error')" />
+              <button class="ico-right" onclick="togglePw('pw-login')">👁</button>
+            </div>
+            <p id="login-error" class="err-msg"></p>
+            <button class="btn-grad" style="margin-bottom:16px" onclick="handleLogin()">Iniciar sesión</button>
+            <div style="text-align:center;margin-bottom:20px">
+              <a class="link-blue" onclick="navigate('recuperar')">¿Olvidaste tu contraseña?</a>
+            </div>
+            <hr class="divider-line">
+            <button class="btn-outline" style="margin-bottom:20px" onclick="navigate('home')">
+              <span>👤</span> Entrar como invitado
+            </button>
+            <p style="text-align:center;font-size:14px;color:var(--text-muted)">
+              ¿No tienes cuenta? <a class="link-orange" onclick="navigate('registro')">Regístrate</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="page" id="page-registro">
+      <div class="auth-center-page">
+        <div class="auth-card">
+          <h2 class="auth-card-title">Crear cuenta en CommerCity</h2>
+          <div class="inp-wrap">
+            <span class="ico">👤</span>
+            <input type="text" placeholder="Nombre de usuario" id="user-reg" oninput="hideErr('reg-error')" />
+          </div>
+          <div class="inp-wrap">
+            <span class="ico">✉️</span>
+            <input type="email" placeholder="Correo electrónico" id="email-reg" oninput="hideErr('reg-error')" />
+          </div>
+          <div class="inp-wrap">
+            <span class="ico">🔒</span>
+            <input type="password" placeholder="Contraseña" id="pw-reg" oninput="hideErr('reg-error')" />
+            <button class="ico-right" onclick="togglePw('pw-reg')">👁</button>
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);margin-bottom:16px;cursor:pointer">
+            <input type="checkbox" style="width:18px;height:18px;accent-color:var(--blue);border-radius:4px;flex-shrink:0" /> Quiero vender en CommerCity
+          </label>
+          <p id="reg-error" class="err-msg"></p>
+          <button class="btn-grad" style="margin-bottom:20px" onclick="handleRegister()">Registrarse</button>
+          <hr class="divider-line">
+          <p style="text-align:center;font-size:14px;color:var(--text-muted)">
+            ¿Ya tienes cuenta? <a class="link-blue" onclick="navigate('login')">Iniciar sesión</a>
+          </p>
+        </div>
+        <div class="auth-footer">
+          <span>©copyright Commercity 2026</span>
+          <a class="link-blue" style="font-weight:400">términos y condiciones</a>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="page" id="page-recuperar">
+      <div class="auth-center-page">
+        <div class="auth-card">
+          <h2 class="auth-card-title">Recuperar contraseña</h2>
+          <p class="auth-card-sub">Ingresa tu correo electrónico y te enviaremos un enlace<br>para restablecer tu
+            contraseña.</p>
+          <label class="inp-label">Correo electrónico</label>
+          <div class="inp-wrap" style="-webkit-app-region:no-drag">
+            <span class="ico">✉️</span>
+            <input type="email" placeholder="ejemplo@correo.com" id="email-recuperar" style="-webkit-app-region:no-drag" oninput="document.getElementById('recuperar-error').style.display='none'" />
+          </div>
+          <p id="recuperar-error" style="display:none;color:#ef4444;font-size:13px;margin-top:-8px;margin-bottom:12px;font-weight:500">⚠️ Por favor, ingresa un correo electrónico válido.</p>
+          <button class="btn-grad" style="margin-bottom:20px" onclick="handleRecuperar()">Enviar enlace</button>
+          <hr class="divider-line">
+          <div style="text-align:center">
+            <a class="link-blue" onclick="navigate('login')">← Volver al inicio de sesión</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="page" id="page-restablecer">
+      <div class="auth-center-page">
+        <div class="auth-card">
+          <h2 class="auth-card-title">Restablecer contraseña</h2>
+          <p class="auth-card-sub">Crea una nueva contraseña segura para tu cuenta.</p>
+          <label class="inp-label">Nueva contraseña</label>
+          <div class="inp-wrap">
+            <span class="ico">🔒</span>
+            <input type="password" placeholder="Ingresa tu nueva contraseña" id="pw-new" />
+            <button class="ico-right" onclick="togglePw('pw-new')">👁</button>
+          </div>
+          <label class="inp-label">Confirmar contraseña</label>
+          <div class="inp-wrap">
+            <span class="ico">🔒</span>
+            <input type="password" placeholder="Confirma tu nueva contraseña" id="pw-confirm" />
+            <button class="ico-right" onclick="togglePw('pw-confirm')">👁</button>
+          </div>
+          <button class="btn-grad" onclick="handleRestablecer()">Restablecer contraseña</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-home">
+      <nav class="navbar">
+        <div class="nav-logo" onclick="navigate('home')">Commer<span>City</span></div>
+        <div class="nav-links">
+          <a class="nav-link active">Inicio</a>
+          <a class="nav-link">Categorías ▾</a>
+          <a class="nav-link">Opciones ▾</a>
+        </div>
+        <div class="nav-right">
+          <div class="search-wrap">
+            <span style="color:var(--text-dim);font-size:14px">🔍</span>
+            <input placeholder="Buscar productos..." />
+          </div>
+          <button class="nav-icon-btn">🔔</button>
+          <button class="nav-icon-btn"><img src="./assets/icon-cart.png" alt="Carrito"
+              style="width:20px;height:20px;"></button>
+          <button class="nav-icon-btn" onclick="navigate('perfil-comprador')">👤</button>
+        </div>
+      </nav>
+
+      <div class="home-wrap">
+        <div class="hero-banner">
+          <img src="images/hero-city.jpg" alt="hero"
+            onerror="this.src='https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80'">
+          <div class="hero-text">
+            <h2>Transforma tu estilo.<br>Eleva tu vida.</h2>
+            <p>CommerCity · Donde tus deseos se hacen realidad. Explora y encuentra lo que te define.</p>
+          </div>
+        </div>
+
+        <h2 class="section-title">Explora Novedades</h2>
+        <div class="products-grid">
+
+          <div class="prod-card" onclick="navigate('perfil-comprador')">
+            <div class="img-wrap">
+              <span class="discount-badge">-15%</span>
+              <img src="images/prod-reloj-silver.jpg" alt="Reloj"
+                onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Reloj Chronos Silver</div>
+              <div class="price-old">$222.350</div>
+              <div class="price-new">$189.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-10%</span>
+              <img src="images/prod-zapatillas-red.jpg" alt="Zapatillas"
+                onerror="this.src='https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Zapatillas Urban Red</div>
+              <div class="price-old">$138.890</div>
+              <div class="price-new">$125.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <img src="images/prod-audifonos-studio.jpg" alt="Audífonos"
+                onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Auriculares Studio Pro</div>
+              <div class="price-new">$299.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-25%</span>
+              <img src="images/prod-calzado-heritage.jpg" alt="Calzado"
+                onerror="this.src='https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Calzado Heritage High</div>
+              <div class="price-old">$126.670</div>
+              <div class="price-new">$95.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <img src="images/prod-ultraboost.jpg" alt="Ultra Boost"
+                onerror="this.src='https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Ultra Boost Runner</div>
+              <div class="price-new">$210.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-5%</span>
+              <img src="images/prod-mochila.jpg" alt="Mochila"
+                onerror="this.src='https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Mochila City Stealth</div>
+              <div class="price-old">$83.160</div>
+              <div class="price-new">$79.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <img src="images/prod-reloj-gold.jpg" alt="Reloj Gold"
+                onerror="this.src='https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Reloj Elitist Gold</div>
+              <div class="price-new">$345.000</div>
+            </div>
+          </div>
+
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-20%</span>
+              <img src="images/prod-botanico.jpg" alt="Set Botánico"
+                onerror="this.src='https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Set Botánico Urban</div>
+              <div class="price-old">$56.250</div>
+              <div class="price-new">$45.000</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="load-more">
+          <p>Cargando más piezas...</p>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-perfil-comprador">
+      <nav class="navbar">
+        <div class="nav-logo" onclick="navigate('home')">Commer<span>City</span></div>
+        <div class="nav-links">
+          <a class="nav-link active">Principal</a>
+        </div>
+        <div class="nav-right">
+          <button class="nav-icon-btn">🔔</button>
+          <button class="nav-icon-btn"><img src="./assets/icon-cart.png" alt="Carrito"
+              style="width:20px;height:20px;"></button>
+          <button class="nav-icon-btn" onclick="navigate('perfil-comprador')">👤</button>
+        </div>
+      </nav>
+
+      <div class="profile-page">
+        <div class="profile-header">
+          <div class="avatar-wrap">
+            <img src="images/avatar-user.png" alt="avatar"
+              onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=juan'">
+            <div class="avatar-cam">📷</div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-username">juan_giraldo</div>
+            <div class="profile-stats">
+              <div class="stat-item">
+                <div class="stat-val">15.8k</div>
+                <div class="stat-lbl">Seguidores</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">842</div>
+                <div class="stat-lbl">Seguidos</div>
+              </div>
+            </div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Juan Giraldo</div>
+            <div class="profile-bio">Curador Digital y Consumidora Ética. Encontrando la belleza en lo funcional.
+              Seleccionando los mejores esenciales para el profesional moderno. ✨</div>
+          </div>
+        </div>
+
+        <div class="profile-tabs">
+          <button class="tab-btn active">⊞ Mi Feed</button>
+          <button class="tab-btn">🕐 Historial de Compras</button>
+        </div>
+        <div class="products-grid">
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-15%</span>
+              <img src="images/feed-bocina.jpg" alt="Bocina"
+                onerror="this.src='https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Bocina Urbana</div>
+              <div class="price-old">$222.350</div>
+              <div class="price-new">$189.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-10%</span>
+              <img src="images/feed-bolso.jpg" alt="Bolso"
+                onerror="this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Bolso Boutique</div>
+              <div class="price-old">$138.880</div>
+              <div class="price-new">$125.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-25%</span>
+              <img src="images/feed-cuadro1.jpg" alt="Cuadro"
+                onerror="this.src='https://images.unsplash.com/photo-1541123437800-1bb1317badc2?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Cuadro Decorativo Minimalista</div>
+              <div class="price-new">$29.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <img src="images/feed-cuadro2.jpg" alt="Cuadro 2"
+                onerror="this.src='https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Cuadro Decorativo</div>
+              <div class="price-old">$6.000</div>
+              <div class="price-new">$25.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-5%</span>
+              <img src="images/feed-termo.jpg" alt="Termo"
+                onerror="this.src='https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Termo Pesado</div>
+              <div class="price-old">$5.000</div>
+              <div class="price-new">$79.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-20%</span>
+              <img src="images/feed-bascula1.jpg" alt="Bascula"
+                onerror="this.src='https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Bascula de Oro</div>
+              <div class="price-old">$4.000</div>
+              <div class="price-new">$40.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-20%</span>
+              <img src="images/feed-bascula2.jpg" alt="Bascula 2"
+                onerror="this.src='https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Bascula de Oro</div>
+              <div class="price-old">$4.000</div>
+              <div class="price-new">$40.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-25%</span>
+              <img src="images/feed-cuadro3.jpg" alt="Cuadro 3"
+                onerror="this.src='https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Cuadro Decorativo</div>
+              <div class="price-old">$6.000</div>
+              <div class="price-new">$25.000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-perfil-vendedor">
+      <nav class="navbar">
+        <div class="nav-logo" onclick="navigate('home')">Commer<span>City</span></div>
+        <div class="nav-links">
+          <a class="nav-link active">Principal</a>
+        </div>
+        <div class="nav-right">
+          <button class="nav-icon-btn">🔔</button>
+          <button class="nav-icon-btn"><img src="./assets/icon-cart.png" alt="Carrito"
+              style="width:20px;height:20px;"></button>
+          <button class="nav-icon-btn" onclick="navigate('perfil-vendedor')">👤</button>
+        </div>
+      </nav>
+
+      <div class="profile-page">
+        <div class="profile-header">
+          <div class="avatar-wrap">
+            <div
+              style="width:110px;height:110px;border-radius:50%;background:#e5e7eb;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,.1)">
+            </div>
+            <div class="avatar-cam">📷</div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-username">juan_giraldo</div>
+            <div class="profile-rating">
+              <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+            </div>
+            <div class="profile-stats">
+              <div class="stat-item">
+                <div class="stat-val">15.8k</div>
+                <div class="stat-lbl">Seguidores</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-val">842</div>
+                <div class="stat-lbl">Seguidos</div>
+              </div>
+            </div>
+            <div class="profile-bio">Curador Digital y Consumidora Ética. Encontrando la belleza en lo funcional.
+              Seleccionando los mejores esenciales para el profesional moderno. ✨</div>
+          </div>
+          <div class="profile-actions">
+            <button class="btn-blue-outline" style="display:flex;align-items:center;gap:6px">⚙️ Ajustes</button>
+            <button class="btn-grad"
+              style="width:auto;padding:10px 18px;font-size:13px;display:flex;align-items:center;gap:6px">➕ Agregar
+              Producto</button>
+          </div>
+        </div>
+
+        <div class="profile-tabs">
+          <button class="tab-btn active">📦 Mis Productos</button>
+          <button class="tab-btn">⊞ Mi Feed</button>
+          <button class="tab-btn">🕐 Historial de Compras</button>
+          <button class="tab-btn">📊 Ventas</button>
+          <button class="tab-btn">📋 Pedidos</button>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <h3 style="font-family:var(--font);font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px">
+            Catálogo de Productos</h3>
+          <p style="font-size:13px;color:var(--text-muted)">Gestiona tu inventario exclusivo y actualiza los detalles de
+            tus piezas destacadas.</p>
+        </div>
+
+        <div class="products-grid">
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-20%</span>
+              <button class="fav-btn" style="background:#f0f0f0">✏️</button>
+              <img src="images/cat-audifonos.jpg" alt="Auriculares"
+                onerror="this.src='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Auriculares Plus</div>
+              <div class="price-old">$20.000</div>
+              <div class="price-new">$80.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-10%</span>
+              <button class="fav-btn" style="background:#f0f0f0">✏️</button>
+              <img src="images/cat-converse.jpg" alt="Converse"
+                onerror="this.src='https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Converse All Star</div>
+              <div class="price-old">$10.000</div>
+              <div class="price-new">$125.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-10%</span>
+              <button class="fav-btn" style="background:#f0f0f0">✏️</button>
+              <img src="images/cat-bolso.jpg" alt="Bolso"
+                onerror="this.src='https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Bolso Boutique</div>
+              <div class="price-old">$38.880</div>
+              <div class="price-new">$125.000</div>
+            </div>
+          </div>
+          <div class="prod-card">
+            <div class="img-wrap">
+              <span class="discount-badge">-15%</span>
+              <button class="fav-btn" style="background:#f0f0f0">✏️</button>
+              <img src="images/cat-planta.jpg" alt="Planta"
+                onerror="this.src='https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&q=80'">
+            </div>
+            <div class="prod-info">
+              <div class="prod-name">Mata Decorativa</div>
+              <div class="price-old">$3.000</div>
+              <div class="price-new">$25.000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+    const AUTH = ['login', 'registro', 'recuperar', 'restablecer'];
+    const APP = ['home', 'perfil-comprador', 'perfil-vendedor'];
+
+    function navigate(page) {
+      document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.style.display = 'none' });
+      const t = document.getElementById('page-' + page);
+      if (t) { t.style.display = 'block'; requestAnimationFrame(() => t.classList.add('active')); t.scrollTop = 0 }
+    }
+
+    function togglePw(id) {
+      const i = document.getElementById(id);
+      i.type = i.type === 'password' ? 'text' : 'password';
+    }
+
+    function showErr(id, msg, focusId) {
+      const el = document.getElementById(id);
+      if (el) { el.textContent = '⚠️ ' + msg; el.style.display = 'block'; }
+      if (focusId) { const f = document.getElementById(focusId); if (f) f.focus(); }
+    }
+
+    function hideErr(id) {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    }
+
+    function handleLogin() {
+      const u = document.getElementById('user-login');
+      const p = document.getElementById('pw-login');
+      if (!u.value.trim()) { showErr('login-error', 'Ingresa tu usuario.', 'user-login'); return; }
+      if (!p.value.trim()) { showErr('login-error', 'Ingresa tu contraseña.', 'pw-login'); return; }
+      navigate('home');
+    }
+
+    function handleRegister() {
+      const u = document.getElementById('user-reg');
+      const e = document.getElementById('email-reg');
+      const p = document.getElementById('pw-reg');
+      if (!u.value.trim()) { showErr('reg-error', 'Ingresa un nombre de usuario.', 'user-reg'); return; }
+      if (!e.value.trim()) { showErr('reg-error', 'Ingresa tu correo electrónico.', 'email-reg'); return; }
+      if (!e.value.includes('@') || !e.value.includes('.')) { showErr('reg-error', 'Ingresa un correo electrónico válido.', 'email-reg'); return; }
+      if (!p.value.trim()) { showErr('reg-error', 'Ingresa una contraseña.', 'pw-reg'); return; }
+      navigate('home');
+    }
+
+    function handleRecuperar() {
+      const inp = document.getElementById('email-recuperar');
+      const err = document.getElementById('recuperar-error');
+      const e = inp.value.trim();
+      if (!e || !e.includes('@') || !e.includes('.')) {
+        err.style.display = 'block';
+        inp.style.borderColor = '#ef4444';
+        inp.style.boxShadow = '0 0 0 3px rgba(239,68,68,.15)';
+        inp.focus();
+        return;
+      }
+      err.style.display = 'none';
+      inp.style.borderColor = '';
+      inp.style.boxShadow = '';
+      // Mostrar confirmación inline en lugar de alert
+      const card = inp.closest('.auth-card');
+      card.innerHTML = `
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:48px;margin-bottom:16px">📧</div>
+          <h2 class="auth-card-title" style="margin-bottom:12px">¡Correo enviado!</h2>
+          <p class="auth-card-sub" style="margin-bottom:28px">Enviamos un enlace de recuperación a<br><strong>${e}</strong></p>
+          <button class="btn-grad" onclick="navigate('login')" style="margin-bottom:16px">Volver al inicio de sesión</button>
+        </div>
+      `;
+    }
+
+    function handleRestablecer() {
+      const p1 = document.getElementById('pw-new').value.trim();
+      const p2 = document.getElementById('pw-confirm').value.trim();
+      if (!p1 || !p2) {
+        alert('Por favor, completa todos los campos.');
+        return;
+      }
+      if (p1 !== p2) {
+        alert('Las contraseñas no coinciden.');
+        return;
+      }
+      alert('✅ Contraseña restablecida correctamente.');
+      navigate('login');
+    }
+
+    document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+    const init = document.getElementById('page-login');
+    if (init) { init.style.display = 'block'; init.classList.add('active') }
+  </script>
+</body>
+
+</html>
