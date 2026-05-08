@@ -39,7 +39,8 @@ npm start
 - **HTML/CSS/JS puro** — sin frameworks adicionales
 - **Google Fonts** — tipografías Sora + DM Sans
 - Ventana sin bordes con titlebar personalizada (estilo macOS)
-⚙️ Proceso de desarrollo
+- 
+  ##  Proceso de desarrollo
 
 Durante el desarrollo se realizaron las siguientes etapas:
 
