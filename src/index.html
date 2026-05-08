@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CommerCity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --orange: #F5A623;
+      --orange-deep: #E8890A;
+      --blue-accent: #3B82F6;
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-input: #1a1a26;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(245, 166, 35, 0.5);
+      --text: #f0f0f8;
+      --text-muted: #8888aa;
+      --text-dim: #555570;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --font: 'Sora', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-dark);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* TITLEBAR */
+    #titlebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 38px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+
+    #titlebar .app-title {
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--orange);
+      letter-spacing: 0.05em;
+    }
+
+    #titlebar .win-controls {
+      display: flex;
+      gap: 8px;
+      -webkit-app-region: no-drag;
+    }
+
+    #titlebar .win-btn {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    #titlebar .win-btn:hover {
+      opacity: 0.8;
+    }
+
+    #titlebar .btn-close {
+      background: #ff5f57;
+    }
+
+    #titlebar .btn-min {
+      background: #febc2e;
+    }
+
+    #titlebar .btn-max {
+      background: #28c840;
+    }
+
+    /* APP CONTAINER */
+    #app {
+      position: fixed;
+      top: 38px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
+
+    /* PAGE TRANSITIONS */
+    .page {
+      position: absolute;
+      inset: 0;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .page.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    /* BUTTONS */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+      color: #000;
+      font-family: var(--font);
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 13px 24px;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      width: 100%;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px rgba(245, 166, 35, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(245, 166, 35, 0.45);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 12px 24px;
+      font-size: 14px;
+      width: 100%;
+      font-family: var(--font-body);
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* INPUTS */
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* LINKS */
+    .link {
+      color: var(--orange);
+      text-decoration: none;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .link:hover {
+      opacity: 0.75;
+    }
+
+    /* AUTH LAYOUT */
+    .auth-layout {
+      width: 100%;
+      min-height: 100%;
+      display: flex;
+    }
+
+    .auth-panel-left {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0d0d1a 0%, #1a0d2e 50%, #0d1a2e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+    }
+
+    .auth-panel-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(245, 166, 35, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+    }
+
+    .auth-panel-left .brand {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .auth-panel-left .brand-logo {
+      font-family: var(--font);
+      font-size: 48px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--orange), #ffd666);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .auth-panel-left .brand-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .auth-panel-left .city-visual {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .auth-panel-left .city-visual svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .auth-panel-right {
+      width: 440px;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+      border-left: 1px solid var(--border);
+    }
+
+    .auth-form {
+      width: 100%;
+    }
+
+    .auth-title {
+      font-family: var(--font);
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    /* SIDEBAR NAV */
+    #sidebar {
+      position: fixed;
+      left: 0;
+      top: 38px;
+      bottom: 0;
+      width: 220px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 0;
+      z-index: 100;
+    }
+
+    #sidebar .sidebar-logo {
+      font-family: var(--font);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--orange);
+      padding: 0 20px;
+      margin-bottom: 32px;
+    }
+
+    #sidebar .nav-section {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 0 20px;
+      margin: 16px 0 8px;
+      text-transform: uppercase;
+    }
+
+    #sidebar .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      margin: 1px 8px;
+      border-radius: 8px;
+    }
+
+    #sidebar .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    #sidebar .nav-item.active {
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    #sidebar .nav-item .icon {
+      font-size: 18px;
+      width: 20px;
+      text-align: center;
+    }
+
+    #sidebar .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    #sidebar .user-mini {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.15s;
+    }
+
+    #sidebar .user-mini:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    #sidebar .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), #ffd666);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #000;
+    }
+
+    #sidebar .user-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    #sidebar .user-role {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* MAIN CONTENT AREA */
+    .main-content {
+      margin-left: 220px;
+      padding: 28px;
+      min-height: 100%;
+      width: calc(100% - 220px);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .topbar h1 {
+      font-family: var(--font);
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .topbar .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      width: 300px;
+    }
+
+    .topbar .search-box input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font-body);
+      width: 100%;
+    }
+
+    .topbar .search-box input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    /* PRODUCT GRID */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .product-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .product-card:hover {
+      border-color: var(--orange);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-card .product-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: var(--bg-input);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+    }
+
+    .product-card .product-info {
+      padding: 14px;
+    }
+
+    .product-card .product-name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .product-card .product-price {
+      color: var(--orange);
+      font-weight: 700;
+      font-size: 15px;
+      font-family: var(--font);
+    }
+
+    .product-card .product-seller {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* BADGE */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-orange {
+      background: rgba(245, 166, 35, 0.15);
+      color: var(--orange);
+    }
+
+    .badge-blue {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+
+    .badge-green {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+
+    /* STAT CARDS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .stat-card .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-card .stat-value {
+      font-family: var(--font);
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .stat-card .stat-change {
+      font-size: 12px;
+      color: var(--success);
+      margin-top: 4px;
+    }
+
+    /* DIVIDER */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider span {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* PROFILE */
+    .profile-cover {
+      height: 160px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a0d2e, #0d1a2e, #1a1a0d);
+      position: relative;
+      margin-bottom: -50px;
+    }
+
+    .profile-cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 100%, rgba(245, 166, 35, 0.2), transparent 70%);
+    }
+
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 4px solid var(--bg-dark);
+      background: linear-gradient(135deg, var(--orange), #ffd666);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 800;
+      color: #000;
+      font-family: var(--font);
+      margin-left: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* TABLE */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TITLEBAR -->
+  <div id="titlebar">
+    <div class="app-title">⬡ CommerCity</div>
+    <div class="win-controls">
+      <button class="win-btn btn-min" onclick="require('electron').ipcRenderer.send('minimize-window')"></button>
+      <button class="win-btn btn-max" onclick="require('electron').ipcRenderer.send('maximize-window')"></button>
+      <button class="win-btn btn-close" onclick="require('electron').ipcRenderer.send('close-window')"></button>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app">
+
+    <!-- PAGE: LOGIN -->
+    <div class="page active" id="page-login">
+      <div class="auth-layout">
+        <div class="auth-panel-left">
+          <div class="brand">
+            <div class="brand-logo">CommerCity</div>
+            <p class="brand-sub">Tu tienda, tu ciudad.<br>Tu estilo, comienza aquí.</p>
+            <div style="margin-top:40px; display:flex; gap:20px; justify-content:center;">
+              <div style="text-align:center;">
+                <div style="font-family:var(--font);font-size:28px;font-weight:700;color:var(--orange)">12K+</div>
+                <div style="font-size:12px;color:var(--text-muted)">Vendedores</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-family:var(--font);font-size:28px;font-weight:700;color:var(--orange)">84K+</div>
+                <div style="font-size:12px;color:var(--text-muted)">Productos</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-family:var(--font);font-size:28px;font-weight:700;color:var(--orange)">230K+</div>
+                <div style="font-size:12px;color:var(--text-muted)">Compradores</div>
+              </div>
+            </div>
+          </div>
+          <div class="city-visual">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="80" width="40" height="120" fill="rgba(245,166,35,0.12)" />
+              <rect x="30" y="60" width="20" height="20" fill="rgba(245,166,35,0.08)" />
+              <rect x="70" y="50" width="60" height="150" fill="rgba(59,130,246,0.1)" />
+              <rect x="140" y="100" width="35" height="100" fill="rgba(245,166,35,0.08)" />
+              <rect x="185" y="30" width="80" height="170" fill="rgba(245,166,35,0.15)" />
+              <rect x="275" y="70" width="50" height="130" fill="rgba(59,130,246,0.08)" />
+              <rect x="335" y="90" width="40" height="110" fill="rgba(245,166,35,0.1)" />
+              <rect x="385" y="40" width="70" height="160" fill="rgba(59,130,246,0.12)" />
+              <rect x="465" y="75" width="45" height="125" fill="rgba(245,166,35,0.09)" />
+              <rect x="520" y="55" width="60" height="145" fill="rgba(245,166,35,0.13)" />
+              <rect x="0" y="195" width="600" height="5" fill="rgba(245,166,35,0.2)" />
+            </svg>
+          </div>
+        </div>
+        <div class="auth-panel-right">
+          <div class="auth-form">
+            <h2 class="auth-title">Iniciar sesión</h2>
+            <p class="auth-subtitle">Bienvenido de vuelta a tu marketplace</p>
+            <div class="input-group">
+              <label>Correo electrónico</label>
+              <input type="email" placeholder="tu@correo.com" />
+            </div>
+            <div class="input-group">
+              <label>Contraseña</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+              <label
+                style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-muted);cursor:pointer;">
+                <input type="checkbox" style="accent-color:var(--orange)" /> Recordarme
+              </label>
+              <a class="link" onclick="navigate('recuperar')">¿Olvidaste tu contraseña?</a>
+            </div>
+            <button class="btn-primary" onclick="navigate('home')">Entrar</button>
+            <div class="divider"><span>o</span></div>
+            <button class="btn-ghost" onclick="navigate('registro')">Crear cuenta nueva</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: REGISTRO -->
+    <div class="page" id="page-registro">
+      <div class="auth-layout">
+        <div class="auth-panel-left">
+          <div class="brand">
+            <div class="brand-logo">CommerCity</div>
+            <p class="brand-sub">Únete a la mayor comunidad<br>de compradores y vendedores.</p>
+            <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:14px;">
+                <span style="color:var(--orange);font-size:20px;">✓</span> Vende desde $0 de comisión inicial
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:14px;">
+                <span style="color:var(--orange);font-size:20px;">✓</span> Protección al comprador garantizada
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:14px;">
+                <span style="color:var(--orange);font-size:20px;">✓</span> Entregas en tu ciudad
+              </div>
+            </div>
+          </div>
+          <div class="city-visual">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="80" width="40" height="120" fill="rgba(245,166,35,0.12)" />
+              <rect x="70" y="50" width="60" height="150" fill="rgba(59,130,246,0.1)" />
+              <rect x="140" y="100" width="35" height="100" fill="rgba(245,166,35,0.08)" />
+              <rect x="185" y="30" width="80" height="170" fill="rgba(245,166,35,0.15)" />
+              <rect x="275" y="70" width="50" height="130" fill="rgba(59,130,246,0.08)" />
+              <rect x="385" y="40" width="70" height="160" fill="rgba(59,130,246,0.12)" />
+              <rect x="520" y="55" width="60" height="145" fill="rgba(245,166,35,0.13)" />
+              <rect x="0" y="195" width="600" height="5" fill="rgba(245,166,35,0.2)" />
+            </svg>
+          </div>
+        </div>
+        <div class="auth-panel-right" style="overflow-y:auto;padding-top:32px;padding-bottom:32px;">
+          <div class="auth-form">
+            <h2 class="auth-title">Crear cuenta</h2>
+            <p class="auth-subtitle">Comienza tu experiencia CommerCity</p>
+            <div style="display:flex;gap:12px;">
+              <div class="input-group" style="flex:1;">
+                <label>Nombre</label>
+                <input type="text" placeholder="Juan" />
+              </div>
+              <div class="input-group" style="flex:1;">
+                <label>Apellido</label>
+                <input type="text" placeholder="Pérez" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label>Correo electrónico</label>
+              <input type="email" placeholder="tu@correo.com" />
+            </div>
+            <div class="input-group">
+              <label>Teléfono</label>
+              <input type="tel" placeholder="+57 300 000 0000" />
+            </div>
+            <div class="input-group">
+              <label>Contraseña</label>
+              <input type="password" placeholder="Mínimo 8 caracteres" />
+            </div>
+            <div class="input-group">
+              <label>Confirmar contraseña</label>
+              <input type="password" placeholder="••••••••" />
+            </div>
+            <div style="margin-bottom:16px;">
+              <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Tipo de cuenta</p>
+              <div style="display:flex;gap:10px;">
+                <label
+                  style="flex:1;border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;">
+                  <input type="radio" name="tipo" value="comprador" checked style="accent-color:var(--orange)" />
+                  Comprador
+                </label>
+                <label
+                  style="flex:1;border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:13px;">
+                  <input type="radio" name="tipo" value="vendedor" style="accent-color:var(--orange)" /> Vendedor
+                </label>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="navigate('home')" style="margin-bottom:12px;">Registrarme</button>
+            <p style="text-align:center;font-size:13px;color:var(--text-muted);">
+              ¿Ya tienes cuenta? <a class="link" onclick="navigate('login')">Iniciar sesión</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: RECUPERAR CONTRASEÑA -->
+    <div class="page" id="page-recuperar">
+      <div class="auth-layout">
+        <div class="auth-panel-left">
+          <div class="brand">
+            <div class="brand-logo">CommerCity</div>
+            <p class="brand-sub">No te preocupes, te ayudamos<br>a recuperar tu acceso.</p>
+          </div>
+          <div class="city-visual">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="185" y="30" width="80" height="170" fill="rgba(245,166,35,0.15)" />
+              <rect x="275" y="70" width="50" height="130" fill="rgba(59,130,246,0.08)" />
+              <rect x="385" y="40" width="70" height="160" fill="rgba(59,130,246,0.12)" />
+              <rect x="0" y="195" width="600" height="5" fill="rgba(245,166,35,0.2)" />
+            </svg>
+          </div>
+        </div>
+        <div class="auth-panel-right">
+          <div class="auth-form">
+            <div style="font-size:40px;margin-bottom:16px;">🔐</div>
+            <h2 class="auth-title">Recuperar contraseña</h2>
+            <p class="auth-subtitle">Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
+            <div class="input-group">
+              <label>Correo electrónico registrado</label>
+              <input type="email" placeholder="tu@correo.com" />
+            </div>
+            <button class="btn-primary" onclick="navigate('restablecer')" style="margin-bottom:16px;">Enviar
+              enlace</button>
+            <button class="btn-ghost" onclick="navigate('login')">← Volver al inicio de sesión</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: RESTABLECER CONTRASEÑA -->
+    <div class="page" id="page-restablecer">
+      <div class="auth-layout">
+        <div class="auth-panel-left">
+          <div class="brand">
+            <div class="brand-logo">CommerCity</div>
+            <p class="brand-sub">Crea una contraseña segura<br>para proteger tu cuenta.</p>
+          </div>
+          <div class="city-visual">
+            <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="185" y="30" width="80" height="170" fill="rgba(245,166,35,0.15)" />
+              <rect x="385" y="40" width="70" height="160" fill="rgba(59,130,246,0.12)" />
+              <rect x="0" y="195" width="600" height="5" fill="rgba(245,166,35,0.2)" />
+            </svg>
+          </div>
+        </div>
+        <div class="auth-panel-right">
+          <div class="auth-form">
+            <div style="font-size:40px;margin-bottom:16px;">🔑</div>
+            <h2 class="auth-title">Nueva contraseña</h2>
+            <p class="auth-subtitle">Elige una contraseña fuerte para tu cuenta.</p>
+            <div class="input-group">
+              <label>Nueva contraseña</label>
+              <input type="password" placeholder="Mínimo 8 caracteres" />
+            </div>
+            <div class="input-group">
+              <label>Confirmar nueva contraseña</label>
+              <input type="password" placeholder="Repite la contraseña" />
+            </div>
+            <div style="background:var(--bg-input);border-radius:10px;padding:12px;margin-bottom:20px;">
+              <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">La contraseña debe tener:</p>
+              <div style="font-size:12px;color:var(--text-dim);display:flex;flex-direction:column;gap:4px;">
+                <span>• Mínimo 8 caracteres</span>
+                <span>• Al menos una mayúscula</span>
+                <span>• Al menos un número</span>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="navigate('login')" style="margin-bottom:12px;">Restablecer
+              contraseña</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR (visible en páginas internas) -->
+    <div id="sidebar" style="display:none;">
+      <div class="sidebar-logo">⬡ CommerCity</div>
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="navigate('home')">
+        <span class="icon">🏠</span> Inicio
+      </div>
+      <div class="nav-item" onclick="navigate('home')">
+        <span class="icon">🛍️</span> Explorar
+      </div>
+      <div class="nav-item" onclick="navigate('home')">
+        <span class="icon">❤️</span> Favoritos
+      </div>
+      <div class="nav-item" onclick="navigate('home')">
+        <span class="icon">🛒</span> Carrito
+      </div>
+      <div class="nav-section">Cuenta</div>
+      <div class="nav-item" onclick="navigate('perfil-comprador')">
+        <span class="icon">👤</span> Mi perfil
+      </div>
+      <div class="nav-item" onclick="navigate('perfil-vendedor')">
+        <span class="icon">🏪</span> Mi tienda
+      </div>
+      <div class="nav-item" onclick="navigate('home')">
+        <span class="icon">📦</span> Mis pedidos
+      </div>
+      <div class="nav-item" onclick="navigate('home')">
+        <span class="icon">⚙️</span> Configuración
+      </div>
+      <div class="sidebar-bottom">
+        <div class="user-mini" onclick="navigate('perfil-comprador')">
+          <div class="user-avatar">J</div>
+          <div>
+            <div class="user-name">juan_giraldo</div>
+            <div class="user-role">Comprador Pro</div>
+          </div>
+        </div>
+        <button class="btn-ghost" style="margin-top:10px;padding:8px;font-size:12px;" onclick="navigate('login')">Cerrar
+          sesión</button>
+      </div>
+    </div>
+
+    <!-- PAGE: HOME / VENTANA PRINCIPAL -->
+    <div class="page" id="page-home">
+      <div class="main-content">
+        <div class="topbar">
+          <div>
+            <h1>Explorar</h1>
+            <p style="font-size:13px;color:var(--text-muted);margin-top:2px;">Descubre los mejores productos de tu
+              ciudad</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="search-box">
+              <span>🔍</span>
+              <input placeholder="Buscar productos, tiendas..." />
+            </div>
+            <div
+              style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#ffd666);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;cursor:pointer;"
+              onclick="navigate('perfil-comprador')">J</div>
+          </div>
+        </div>
+
+        <!-- HERO BANNER -->
+        <div
+          style="background:linear-gradient(135deg,#1a0d2e,#0d1a2e);border-radius:18px;padding:48px;margin-bottom:28px;position:relative;overflow:hidden;border:1px solid var(--border);">
+          <div
+            style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(245,166,35,0.15),transparent 60%),radial-gradient(ellipse at 30% 20%,rgba(59,130,246,0.1),transparent 50%);">
+          </div>
+          <div style="position:relative;z-index:1;max-width:500px;">
+            <div class="badge badge-orange" style="margin-bottom:16px;">🔥 Novedades de la semana</div>
+            <h2 style="font-family:var(--font);font-size:34px;font-weight:800;line-height:1.2;margin-bottom:12px;">
+              Transforma tu estilo.<br>Eleva tu vida.</h2>
+            <p style="color:var(--text-muted);margin-bottom:24px;font-size:15px;">Los productos más exclusivos de
+              vendedores locales verificados.</p>
+            <button class="btn-primary" style="width:auto;padding:13px 32px;">Ver colección →</button>
+          </div>
+          <div style="position:absolute;right:48px;top:50%;transform:translateY(-50%);font-size:100px;opacity:0.15;">🛍️
+          </div>
+        </div>
+
+        <!-- CATEGORÍAS -->
+        <div style="display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;">
+          <button
+            style="background:rgba(245,166,35,0.15);color:var(--orange);border:1px solid rgba(245,166,35,0.3);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;font-weight:600;">Todos</button>
+          <button
+            style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;">⌚
+            Relojes</button>
+          <button
+            style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;">👟
+            Calzado</button>
+          <button
+            style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;">👜
+            Bolsos</button>
+          <button
+            style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;">💻
+            Tecnología</button>
+          <button
+            style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;">🌿
+            Hogar</button>
+          <button
+            style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:8px 18px;cursor:pointer;font-size:13px;">💄
+            Belleza</button>
+        </div>
+
+        <!-- PRODUCTOS -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-family:var(--font);font-size:16px;font-weight:700;">Explora Novedades</h3>
+          <a class="link">Ver todos →</a>
+        </div>
+        <div class="product-grid">
+          <div class="product-card">
+            <div class="product-img">⌚</div>
+            <div class="product-info">
+              <div class="product-name">Reloj Clásico Premium</div>
+              <div class="product-price">$189.000</div>
+              <div class="product-seller">por WatchStore CO</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">👟</div>
+            <div class="product-info">
+              <div class="product-name">Zapatillas Urbanas</div>
+              <div class="product-price">$245.000</div>
+              <div class="product-seller">por ShoeBrand</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">👜</div>
+            <div class="product-info">
+              <div class="product-name">Bolso de Cuero</div>
+              <div class="product-price">$320.000</div>
+              <div class="product-seller">por LuxeBags</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">🕶️</div>
+            <div class="product-info">
+              <div class="product-name">Gafas Wayfarer</div>
+              <div class="product-price">$98.000</div>
+              <div class="product-seller">por OptiStyle</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">💍</div>
+            <div class="product-info">
+              <div class="product-name">Collar Plata 925</div>
+              <div class="product-price">$75.000</div>
+              <div class="product-seller">por JoyaCity</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">🌵</div>
+            <div class="product-info">
+              <div class="product-name">Pack Plantas Hogar</div>
+              <div class="product-price">$55.000</div>
+              <div class="product-seller">por NaturaCali</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">🎧</div>
+            <div class="product-info">
+              <div class="product-name">Audífonos Pro BT</div>
+              <div class="product-price">$178.000</div>
+              <div class="product-seller">por TechStore</div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">🕯️</div>
+            <div class="product-info">
+              <div class="product-name">Velas Aromáticas</div>
+              <div class="product-price">$34.000</div>
+              <div class="product-seller">por AromaHome</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: PERFIL COMPRADOR -->
+    <div class="page" id="page-perfil-comprador">
+      <div class="main-content">
+        <div class="topbar">
+          <h1>Mi Perfil</h1>
+          <button class="btn-primary" style="width:auto;padding:10px 20px;font-size:13px;">✏️ Editar perfil</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;">
+          <div>
+            <!-- COVER + AVATAR -->
+            <div
+              style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;">
+              <div class="profile-cover"></div>
+              <div style="padding:0 24px 24px;display:flex;align-items:flex-end;gap:16px;margin-top:-45px;">
+                <div class="profile-avatar">J</div>
+                <div style="padding-bottom:4px;">
+                  <div style="font-family:var(--font);font-size:20px;font-weight:700;">juan_giraldo</div>
+                  <div style="font-size:13px;color:var(--text-muted);">juan.giraldo@gmail.com</div>
+                  <div style="display:flex;gap:8px;margin-top:8px;">
+                    <span class="badge badge-blue">Comprador</span>
+                    <span class="badge badge-green">✓ Verificado</span>
+                  </div>
+                </div>
+                <div style="margin-left:auto;padding-bottom:4px;display:flex;gap:24px;">
+                  <div style="text-align:center;">
+                    <div style="font-family:var(--font);font-size:22px;font-weight:700;">47</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Pedidos</div>
+                  </div>
+                  <div style="text-align:center;">
+                    <div style="font-family:var(--font);font-size:22px;font-weight:700;">12</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Favoritos</div>
+                  </div>
+                  <div style="text-align:center;">
+                    <div style="font-family:var(--font);font-size:22px;font-weight:700;">4.9⭐</div>
+                    <div style="font-size:12px;color:var(--text-muted);">Reputación</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- INFO -->
+            <div class="card" style="margin-bottom:20px;">
+              <h3 style="font-family:var(--font);font-size:15px;font-weight:700;margin-bottom:16px;">Información
+                personal</h3>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div class="input-group" style="margin:0;"><label>Nombre completo</label><input value="Juan Giraldo" />
+                </div>
+                <div class="input-group" style="margin:0;"><label>Teléfono</label><input value="+57 300 123 4567" />
+                </div>
+                <div class="input-group" style="margin:0;"><label>Ciudad</label><input value="Cali, Valle del Cauca" />
+                </div>
+                <div class="input-group" style="margin:0;"><label>Dirección</label><input value="Cll 5 # 38-25" /></div>
+              </div>
+            </div>
+
+            <!-- HISTORIAL -->
+            <div class="card">
+              <h3 style="font-family:var(--font);font-size:15px;font-weight:700;margin-bottom:16px;">Últimos pedidos
+              </h3>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Producto</th>
+                    <th>Vendedor</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Reloj Clásico Premium</td>
+                    <td>WatchStore CO</td>
+                    <td>$189.000</td>
+                    <td><span class="badge badge-green">Entregado</span></td>
+                  </tr>
+                  <tr>
+                    <td>Zapatillas Urbanas</td>
+                    <td>ShoeBrand</td>
+                    <td>$245.000</td>
+                    <td><span class="badge badge-orange">En camino</span></td>
+                  </tr>
+                  <tr>
+                    <td>Bolso de Cuero</td>
+                    <td>LuxeBags</td>
+                    <td>$320.000</td>
+                    <td><span class="badge badge-blue">Procesando</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SIDEBAR PERFIL -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <h4
+                style="font-family:var(--font);font-size:13px;font-weight:700;margin-bottom:14px;color:var(--text-muted);">
+                SALDO Y PAGOS</h4>
+              <div
+                style="font-family:var(--font);font-size:32px;font-weight:700;color:var(--orange);margin-bottom:4px;">
+                $842.000</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Saldo disponible</div>
+              <button class="btn-primary" style="margin-bottom:8px;">Recargar saldo</button>
+              <button class="btn-ghost">Retirar fondos</button>
+            </div>
+            <div class="card">
+              <h4
+                style="font-family:var(--font);font-size:13px;font-weight:700;margin-bottom:14px;color:var(--text-muted);">
+                ACCIONES RÁPIDAS</h4>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn-ghost" onclick="navigate('perfil-vendedor')">🏪 Convertirme en vendedor</button>
+                <button class="btn-ghost">📦 Rastrear pedido</button>
+                <button class="btn-ghost">⭐ Mis reseñas</button>
+                <button class="btn-ghost" style="color:var(--danger);border-color:rgba(239,68,68,0.3);"
+                  onclick="navigate('login')">🚪 Cerrar sesión</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: PERFIL VENDEDOR -->
+    <div class="page" id="page-perfil-vendedor">
+      <div class="main-content">
+        <div class="topbar">
+          <h1>Mi Tienda</h1>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-ghost" style="width:auto;padding:10px 20px;font-size:13px;">📊 Ver estadísticas</button>
+            <button class="btn-primary" style="width:auto;padding:10px 20px;font-size:13px;">+ Nuevo producto</button>
+          </div>
+        </div>
+
+        <!-- COVER VENDEDOR -->
+        <div
+          style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;">
+          <div style="height:140px;background:linear-gradient(135deg,#0d1a0d,#1a1a0d,#1a0d1a);position:relative;">
+            <div
+              style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,rgba(245,166,35,0.25),transparent 60%);">
+            </div>
+          </div>
+          <div style="padding:0 24px 24px;display:flex;align-items:flex-end;gap:16px;margin-top:-45px;">
+            <div class="profile-avatar" style="background:linear-gradient(135deg,#3B82F6,#6366f1);">J</div>
+            <div style="padding-bottom:4px;">
+              <div style="font-family:var(--font);font-size:20px;font-weight:700;">juan_giraldo · Vendedor</div>
+              <div style="font-size:13px;color:var(--text-muted);">Cali, Colombia · Miembro desde Ene 2023</div>
+              <div style="display:flex;gap:8px;margin-top:8px;">
+                <span class="badge badge-orange">Vendedor Pro</span>
+                <span class="badge badge-green">✓ Verificado</span>
+                <span class="badge" style="background:rgba(99,102,241,0.15);color:#818cf8;">⭐ Top Seller</span>
+              </div>
+            </div>
+            <div style="margin-left:auto;padding-bottom:4px;display:flex;gap:24px;">
+              <div style="text-align:center;">
+                <div style="font-family:var(--font);font-size:22px;font-weight:700;">128</div>
+                <div style="font-size:12px;color:var(--text-muted);">Ventas</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-family:var(--font);font-size:22px;font-weight:700;">34</div>
+                <div style="font-size:12px;color:var(--text-muted);">Productos</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-family:var(--font);font-size:22px;font-weight:700;">4.8⭐</div>
+                <div style="font-size:12px;color:var(--text-muted);">Rating</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Ingresos del mes</div>
+            <div class="stat-value" style="color:var(--orange);">$2.4M</div>
+            <div class="stat-change">↑ +18% vs mes anterior</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pedidos activos</div>
+            <div class="stat-value">12</div>
+            <div class="stat-change">↑ +3 esta semana</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Visitas al perfil</div>
+            <div class="stat-value">1.2K</div>
+            <div class="stat-change">↑ +24% este mes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Tasa de conversión</div>
+            <div class="stat-value">8.4%</div>
+            <div class="stat-change">↑ +1.2% este mes</div>
+          </div>
+        </div>
+
+        <!-- CATÁLOGO -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-family:var(--font);font-size:16px;font-weight:700;">Catálogo de Productos</h3>
+          <div style="display:flex;gap:8px;">
+            <button
+              style="background:rgba(245,166,35,0.15);color:var(--orange);border:1px solid rgba(245,166,35,0.3);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:12px;">Todos
+              (34)</button>
+            <button
+              style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:12px;">Activos
+              (28)</button>
+            <button
+              style="background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:12px;">Sin
+              stock (6)</button>
+          </div>
+        </div>
+        <div class="product-grid">
+          <div class="product-card">
+            <div class="product-img">🎧</div>
+            <div class="product-info">
+              <div class="product-name">Audífonos Pro Max</div>
+              <div class="product-price">$178.000</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                <span class="badge badge-green" style="font-size:10px;">Activo</span>
+                <span style="font-size:11px;color:var(--text-muted);">23 vendidos</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">💻</div>
+            <div class="product-info">
+              <div class="product-name">Mouse Inalámbrico</div>
+              <div class="product-price">$89.000</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                <span class="badge badge-green" style="font-size:10px;">Activo</span>
+                <span style="font-size:11px;color:var(--text-muted);">41 vendidos</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">⌨️</div>
+            <div class="product-info">
+              <div class="product-name">Teclado Mecánico</div>
+              <div class="product-price">$210.000</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                <span class="badge badge-orange" style="font-size:10px;">Poco stock</span>
+                <span style="font-size:11px;color:var(--text-muted);">17 vendidos</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-img">📱</div>
+            <div class="product-info">
+              <div class="product-name">Soporte para Tablet</div>
+              <div class="product-price">$45.000</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+                <span class="badge badge-green" style="font-size:10px;">Activo</span>
+                <span style="font-size:11px;color:var(--text-muted);">8 vendidos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const AUTH_PAGES = ['login', 'registro', 'recuperar', 'restablecer'];
+    const APP_PAGES = ['home', 'perfil-comprador', 'perfil-vendedor'];
+
+    function navigate(page) {
+      // Hide all pages
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      // Show target
+      const target = document.getElementById('page-' + page);
+      if (target) { target.classList.add('active'); }
+      // Sidebar visibility
+      const sidebar = document.getElementById('sidebar');
+      if (APP_PAGES.includes(page)) {
+        sidebar.style.display = 'flex';
+        sidebar.style.flexDirection = 'column';
+      } else {
+        sidebar.style.display = 'none';
+      }
+      // Update sidebar active nav
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      if (page === 'home') document.querySelectorAll('.nav-item')[0]?.classList.add('active');
+      if (page === 'perfil-comprador') document.querySelectorAll('.nav-item')[4]?.classList.add('active');
+      if (page === 'perfil-vendedor') document.querySelectorAll('.nav-item')[5]?.classList.add('active');
+    }
+  </script>
+</body>
+
+</html>
