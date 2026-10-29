@@ -2324,13 +2324,12 @@ function showToast(msg) {
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'app-toast';
-    toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--orange);border-radius:12px;padding:12px 22px;font-size:13px;color:var(--text);z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s;pointer-events:none;white-space:nowrap';
     document.body.appendChild(toast);
   }
   toast.textContent = msg;
-  toast.style.opacity = '1';
+  toast.classList.add('show');
   clearTimeout(toast._t);
-  toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+  toast._t = setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -2472,7 +2471,117 @@ function filtrarPorCategoria(cat) {
   renderProductsHome(1, false);
 }
 
+// ════════════════════════════════════════════════════════════
+// GESTIÓN DE TEMAS (CLARO / OSCURO / SISTEMA) — FIGMA 1044:88 / 1045:88
+// ════════════════════════════════════════════════════════════
+let currentThemeSetting = localStorage.getItem('commercity_theme') || 'system';
+
+function initTheme() {
+  aplicarTema(currentThemeSetting, false);
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if ((localStorage.getItem('commercity_theme') || 'system') === 'system') {
+        aplicarTema('system', false);
+      }
+    });
+  }
+}
+
+function cambiarTema(nuevoTema) {
+  aplicarTema(nuevoTema, true);
+  const labels = { light: 'Tema Claro', dark: 'Tema Oscuro', system: 'Tema Automático (Sistema)' };
+  showToast(`🎨 ${labels[nuevoTema] || nuevoTema} activado`);
+}
+
+function aplicarTema(tema, guardar = true) {
+  if (guardar) {
+    localStorage.setItem('commercity_theme', tema);
+  }
+  currentThemeSetting = tema;
+
+  let effectiveTheme = tema;
+  if (tema === 'system') {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    effectiveTheme = prefersDark ? 'dark' : 'light';
+  }
+
+  document.documentElement.setAttribute('data-theme', effectiveTheme);
+
+  // Actualizar iconos de toggle rápido en topbars
+  document.querySelectorAll('.tb-theme-icon').forEach(el => {
+    el.textContent = effectiveTheme === 'dark' ? '☀️' : '🌙';
+  });
+
+  // Actualizar tarjetas de selección en Ajustes (comprador y admin)
+  document.querySelectorAll('.theme-card').forEach(card => {
+    const val = card.getAttribute('data-theme-val');
+    if (val === tema) {
+      card.classList.add('active');
+    } else {
+      card.classList.remove('active');
+    }
+  });
+}
+
+function toggleThemeQuick() {
+  const currentEffective = document.documentElement.getAttribute('data-theme') || 'dark';
+  const nuevo = currentEffective === 'dark' ? 'light' : 'dark';
+  cambiarTema(nuevo);
+}
+
+function guardarAjustesUsuario() {
+  const userInp = document.getElementById('ajustes-usuario');
+  const emailInp = document.getElementById('ajustes-email');
+  const nuevoUser = userInp?.value.trim();
+  const nuevoEmail = emailInp?.value.trim();
+
+  if (!nuevoUser || !nuevoEmail) {
+    showToast('⚠️ Debes ingresar usuario y correo válidos');
+    return;
+  }
+
+  if (currentUser) {
+    currentUser.name = nuevoUser;
+    currentUser.username = nuevoUser;
+    currentUser.email = nuevoEmail;
+    try {
+      localStorage.setItem('commercity_user', JSON.stringify(currentUser));
+    } catch(e) {}
+    const nameEl = document.getElementById('sb-user-name');
+    if (nameEl) nameEl.textContent = nuevoUser;
+    const initEl = document.getElementById('sb-user-initial');
+    if (initEl) initEl.textContent = nuevoUser[0].toUpperCase();
+  }
+  showToast('✅ Información personal actualizada');
+}
+
+function guardarAjustesDireccion() {
+  const dirInp = document.getElementById('ajustes-dir');
+  const ciudadInp = document.getElementById('ajustes-ciudad');
+  const dir = dirInp?.value.trim();
+  const ciudad = ciudadInp?.value.trim();
+
+  if (!dir || !ciudad) {
+    showToast('⚠️ Completa la dirección y la ciudad');
+    return;
+  }
+  showToast(`✅ Dirección guardada: ${dir}, ${ciudad}`);
+}
+
+function eliminarCuentaUsuario() {
+  const conf = confirm('¿Estás seguro de que deseas eliminar tu cuenta de CommerCity? Esta acción es irreversible.');
+  if (conf) {
+    showToast('⚠️ Tu cuenta ha sido programada para desactivación');
+    setTimeout(() => {
+      doLogout();
+    }, 1500);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
+
   // Restaurar usuario autenticado si existe en sesión
   const storedUser = API.getStoredUser();
   const storedToken = API.getToken();

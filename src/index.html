@@ -336,6 +336,7 @@
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
           <input id="search-input" oninput="filtrarProductos()" placeholder="Buscar productos..."/>
         </div>
+        <div class="tb-icon-btn tb-theme-toggle" onclick="toggleThemeQuick()" title="Alternar tema"><span class="tb-theme-icon">🌙</span></div>
         <div class="tb-icon-btn" onclick="toggleNotif()">
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2a5 5 0 015 5v2.5l1.5 2H1.5L3 9.5V7a5 5 0 015-5z"/><path d="M6.5 13a1.5 1.5 0 003 0"/></svg>
           <span class="notif-dot"></span>
@@ -923,41 +924,96 @@
     <div class="topbar">
       <span class="topbar-title">Ajustes</span>
       <div class="topbar-right">
-        <div class="tb-icon-btn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2a5 5 0 015 5v2.5l1.5 2H1.5L3 9.5V7a5 5 0 015-5z"/></svg></div>
-        <div class="tb-avatar">J</div>
+        <div class="tb-icon-btn tb-theme-toggle" onclick="toggleThemeQuick()" title="Alternar tema"><span class="tb-theme-icon">🌙</span></div>
+        <div class="tb-icon-btn" onclick="toggleNotif()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2a5 5 0 015 5v2.5l1.5 2H1.5L3 9.5V7a5 5 0 015-5z"/></svg></div>
+        <div class="tb-avatar" onclick="navigate('perfil')">J</div>
       </div>
     </div>
     <div class="main-scroll">
-      <h2 style="font-family:var(--font);font-size:20px;font-weight:700;margin-bottom:4px">Ajustes</h2>
+      <h2 style="font-family:var(--font);font-size:20px;font-weight:700;margin-bottom:4px;color:var(--text)">Ajustes</h2>
       <p style="font-size:13px;color:var(--text2);margin-bottom:24px">Administra tu información personal y preferencias sobre la cuenta.</p>
 
+      <!-- INFORMACIÓN PERSONAL -->
       <div class="ajuste-section">
         <div class="ajuste-title">Información personal</div>
         <div class="ajuste-sub">Actualiza tu usuario y correo electrónico.</div>
         <div class="card">
-          <div class="field"><label>Usuario</label><input value="Juan_Giraldo" type="text"/></div>
-          <div class="field" style="margin-bottom:16px"><label>Correo electrónico</label><input value="Juan_commercity@gmail.com" type="email"/></div>
-          <button class="btn btn-orange btn-sm">Guardar Cambios</button>
+          <div class="field"><label>Usuario</label><input id="ajustes-usuario" value="Juan_Giraldo" type="text"/></div>
+          <div class="field" style="margin-bottom:16px"><label>Correo electrónico</label><input id="ajustes-email" value="juan.giraldo@commercity.com" type="email"/></div>
+          <button class="btn btn-orange btn-sm" onclick="guardarAjustesUsuario()">Guardar Cambios</button>
         </div>
       </div>
 
+      <!-- TEMA (FIGMA 1044:88 / 1045:88) -->
+      <div class="ajuste-section">
+        <div class="ajuste-title">Tema</div>
+        <div class="ajuste-sub">Elige cómo quieres ver tu CommerCity.</div>
+        <div class="card" style="padding:22px">
+          <div class="theme-selector-grid">
+            <div class="theme-card" data-theme-val="light" onclick="cambiarTema('light')">
+              <div class="theme-card-icon">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+              </div>
+              <div class="theme-card-title">Claro</div>
+              <div class="theme-card-sub">LIGHT</div>
+              <span class="theme-card-badge">✓</span>
+            </div>
+
+            <div class="theme-card" data-theme-val="dark" onclick="cambiarTema('dark')">
+              <div class="theme-card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              </div>
+              <div class="theme-card-title">Oscuro</div>
+              <div class="theme-card-sub">DARK</div>
+              <span class="theme-card-badge">✓</span>
+            </div>
+
+            <div class="theme-card" data-theme-val="system" onclick="cambiarTema('system')">
+              <div class="theme-card-icon">
+                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                  <line x1="8" y1="21" x2="16" y2="21"></line>
+                  <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+              </div>
+              <div class="theme-card-title">Sistema</div>
+              <div class="theme-card-sub">SYSTEM</div>
+              <span class="theme-card-badge">✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIRECCIÓN DE ENTREGA -->
       <div class="ajuste-section">
         <div class="ajuste-title">Dirección de entrega</div>
         <div class="ajuste-sub">Agrega tu dirección para recibir tus pedidos</div>
         <div class="card">
-          <div class="field"><label>Dirección</label><input value="calle 123 # 45 - 67" type="text"/></div>
+          <div class="field"><label>Dirección</label><input id="ajustes-dir" value="calle 123 # 45 - 67" type="text"/></div>
           <div class="field-row" style="margin-bottom:16px">
-            <div class="field" style="margin:0"><label>Ciudad</label><input value="cali" type="text"/></div>
-            <div class="field" style="margin:0"><label>Departamento</label><input value="valle del cauca" type="text"/></div>
+            <div class="field" style="margin:0"><label>Ciudad</label><input id="ajustes-ciudad" value="Cali" type="text"/></div>
+            <div class="field" style="margin:0"><label>Departamento</label><input id="ajustes-depto" value="Valle del Cauca" type="text"/></div>
           </div>
-          <button class="btn btn-orange btn-sm">Cambiar Dirección</button>
+          <button class="btn btn-orange btn-sm" onclick="guardarAjustesDireccion()">Cambiar Dirección</button>
         </div>
       </div>
 
       <div class="convert-banner">
         <div class="convert-text">
           <h4>¿ Quieres vender en CommerCity ?</h4>
-          <p>Crea tu tienda y construye tu futuro en CommerCity. llega a mas compradores en esta comunidad.</p>
+          <p>Crea tu tienda y construye tu futuro en CommerCity. Llega a más compradores en esta comunidad.</p>
         </div>
         <button class="btn btn-orange btn-sm" onclick="convertirAVendedor()">Cambiar a vendedor</button>
       </div>
@@ -967,7 +1023,7 @@
           <h4>Elimina tu cuenta</h4>
           <p>Una vez que elimines tu cuenta, todos tus datos serán borrados permanentemente, esta acción no se puede deshacer.</p>
         </div>
-        <button class="btn btn-danger btn-sm">Eliminar Cuenta</button>
+        <button class="btn btn-danger btn-sm" onclick="eliminarCuentaUsuario()">Eliminar Cuenta</button>
       </div>
     </div>
   </div>
@@ -1046,7 +1102,10 @@
     <!-- TOPBAR ADMIN -->
     <div class="admin-topbar">
       <span class="admin-brand">CommerCity</span>
-      <button class="admin-gear-btn" onclick="navigate('admin-ajustes')" title="Ajustes">⚙</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="tb-icon-btn tb-theme-toggle" onclick="toggleThemeQuick()" title="Alternar tema"><span class="tb-theme-icon">🌙</span></div>
+        <button class="admin-gear-btn" onclick="navigate('admin-ajustes')" title="Ajustes">⚙</button>
+      </div>
     </div>
 
     <!-- CONTENIDO -->
@@ -1336,6 +1395,56 @@
         </div>
         <div style="display:flex;justify-content:flex-end">
           <button class="btn btn-orange">Guardar cuenta bancaria</button>
+        </div>
+      </div>
+
+      <!-- TEMA ADMIN -->
+      <div class="card" style="margin-bottom:24px;padding:22px">
+        <div class="section-head" style="margin-bottom:4px">Tema de la interfaz</div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Elige cómo quieres visualizar el panel administrador.</p>
+        <div class="theme-selector-grid">
+          <div class="theme-card" data-theme-val="light" onclick="cambiarTema('light')">
+            <div class="theme-card-icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </div>
+            <div class="theme-card-title">Claro</div>
+            <div class="theme-card-sub">LIGHT</div>
+            <span class="theme-card-badge">✓</span>
+          </div>
+
+          <div class="theme-card" data-theme-val="dark" onclick="cambiarTema('dark')">
+            <div class="theme-card-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </div>
+            <div class="theme-card-title">Oscuro</div>
+            <div class="theme-card-sub">DARK</div>
+            <span class="theme-card-badge">✓</span>
+          </div>
+
+          <div class="theme-card" data-theme-val="system" onclick="cambiarTema('system')">
+            <div class="theme-card-icon">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+            <div class="theme-card-title">Sistema</div>
+            <div class="theme-card-sub">SYSTEM</div>
+            <span class="theme-card-badge">✓</span>
+          </div>
         </div>
       </div>
 
